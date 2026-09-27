@@ -12,7 +12,7 @@ interface Repo {
 }
 
 async function getPublicRepositories(): Promise<Repo[]> {
-  const username = process.env.GITHUB_USERNAME || "minhduc29013";
+  const username = process.env.GITHUB_USERNAME || "your-username"; // Thay "your-username" bằng tên GitHub của bạn
   const token = process.env.GITHUB_TOKEN;
 
   // Bắt buộc phải có User-Agent cho GitHub API
