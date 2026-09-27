@@ -12,28 +12,38 @@ interface Repo {
 }
 
 async function getPublicRepositories(): Promise<Repo[]> {
-  const username = process.env.GITHUB_USERNAME || "octocat";
+  const username = process.env.GITHUB_USERNAME || "minhduc29013";
   const token = process.env.GITHUB_TOKEN;
 
-  const headers: HeadersInit = {
+  // Bắt buộc phải có User-Agent cho GitHub API
+  const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
+    "User-Agent": "NextJS-GitHub-Dashboard-App",
   };
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  // API CHỈ LẤY REPO PUBLIC CỦA USERNAME
-  const res = await fetch(
-    `https://api.github.com/users/${username}/repos?sort=updated&per_page=100&type=public`,
-    {
-      headers,
-      next: { revalidate: 300 }, // Tự động làm mới cache sau 5 phút
-    }
-  );
+  try {
+    const res = await fetch(
+      `https://api.github.com/users/${username}/repos?sort=updated&per_page=100&type=public`,
+      {
+        headers,
+        next: { revalidate: 300 }, // Làm mới dữ liệu sau 5 phút
+      }
+    );
 
-  if (!res.ok) return [];
-  return res.json();
+    if (!res.ok) {
+      console.error(`GitHub API Error: ${res.status} ${res.statusText}`);
+      return [];
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error("Fetch error:", error);
+    return [];
+  }
 }
 
 export default async function Home() {
